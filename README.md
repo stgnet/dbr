@@ -6,7 +6,7 @@ Daily Bible Reading
 ParseGutenberg.php
 ------------------
 
-Use the freely available KJV version from Gutenberg project to build
+Uses the freely available KJV version from Gutenberg project to build
 a statistics database of wordcounts per chapter and verse.
 
 

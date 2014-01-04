@@ -7,31 +7,51 @@
 
     require 'kjv-wordcount-chapters.php';
 
-    $total=0;
+    $year='2014';
+    if (!empty($argv[1]))
+        $year=$argv[1];
+
+    $daylist=array();
+    $start=strtotime("Jan 1 $year");
+    $end=strtotime("Dec 31 $year");
+    $day=$start;
+    while ($day <= $end)
+    {
+        $dayofweek=date("w",$day);
+        if ($dayofweek) // not sunday
+            $daylist[]=$day;
+        $day=$day+24*3600;
+    }
+
+    $daycount=count($daylist);
+
+    $totalwords=0;
     foreach ($wordcount as $chapter => $words)
-        $total+=$words;
+        $totalwords+=$words;
     $chapters=count($wordcount);
 
-    $wordsperday=$total/365;
-    $chaptersperday=$chapters/365;
-    $wordsperchapter=$total/$chapters;
+    $wordsperday=$totalwords/$daycount;
+    $chaptersperday=$chapters/$daycount;
+    $wordsperchapter=$totalwords/$chapters;
 
-    //echo "There are $chapters chapters and $total words.\n";
-    //echo "Average of $wordsperchapter words per chapter.\n";
-    //echo "Average of $chaptersperday chapters per day.\n";
-    //echo "Targeting $wordsperday words per day.\n";
+    echo "There are $daycount days.\n";
+    echo "There are $chapters chapters and $totalwords words.\n";
+    echo "Average of $wordsperchapter words per chapter.\n";
+    echo "Average of $chaptersperday chapters per day.\n";
+    echo "Targeting $wordsperday words per day.\n";
 
     $chapterlist=array_keys($wordcount);
     // start with *next* year
-    $start=strtotime("Dec 31")+24*3600;
     $words=0;
     $plan=array();
-    foreach (range(0,364) as $dayoffset)
+    $dayoffset=0;
+    foreach ($daylist as $date)
     {
-        $day=date("D M d Y",$start+24*3600*$dayoffset);
+        $day=date("D M d Y",$date);
         $plan[$day]=array();
 
-        $target=$wordsperday*($dayoffset+1);
+        $dayoffset++;
+        $target=$wordsperday*$dayoffset;
 
         while ($words<$target)
         {
@@ -41,6 +61,6 @@
         }
     }
 
-    file_put_contents("dbr-plan.php",'<'."?php\n".'$plan='.var_export($plan,true).";\n");
+    file_put_contents("dbr-plan-$year.php",'<'."?php\n".'$plan='.var_export($plan,true).";\n");
 
 
